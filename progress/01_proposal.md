@@ -6,58 +6,58 @@
 
 ## 1. Candidate Project Ideas (AI-Generated)
 
-Using generative AI to brainstorm within the sports analytics domain, the following candidate ideas emerged:
+I used generative AI to brainstorm ideas in sports analytics. These are the three directions it suggested:
 
 ### Idea A: NBA Draft Player Success Prediction (Selected)
-Predict the career success of NBA draft prospects using college statistics and pre-draft combine data. Success is measured by an **aggregated metric** (e.g., composite of counting stats, advanced metrics like Win Shares/VORP, minutes played, etc.) that can be bucketed for classification. Supervised models (regression or classification) predict this outcome. **PCA (dimensionality reduction)** reveals which pre-draft indicators best predict success via loadings and PC–success correlations.
+Predict how successful NBA draft prospects become using college stats and pre-draft data (for example combine numbers). **Success** is one combined score built from NBA career stats (box score stats, advanced stats like Win Shares or VORP, games played, and similar). I can use that score in **regression** or bucket it for **classification**. I will also use **PCA** on the pre-draft features. PCA loadings and correlations with the success score help show which inputs matter most.
 
-**Data:** College stats and NBA career outcomes from Basketball-Reference (Sports Reference). College-route players only; 10 seasons of draft cohorts.
+**Data:** College and NBA stats from Basketball-Reference (Sports Reference). College-route players only, about 10 seasons of draft-related cohorts.
 
 ### Idea B: Draft Position vs. Performance Mismatch
-Focus on predicting *mismatches* between draft slot and eventual performance—specifically, flagging players who over- or underperform relative to their draft position. Supervised model predicts a “value delta” (actual performance minus expected given draft slot). Anomaly detection finds outliers (biggest busts and steals) for further analysis.
+Predict how far a player ends up above or below what you would expect from their draft slot. Flag big over- and under-performers. Could add anomaly-style analysis on the errors.
 
 **Data:** Basketball-Reference draft history and career stats.
 
 ### Idea C: Player Archetype Discovery and Success
-Use **clustering** first to discover natural player archetypes from college stats and physical measurements. Then use **supervised learning** to predict whether a prospect’s archetype tends to succeed in the NBA. This flips the usual order: archetype membership becomes a feature for the success model.
+Use **clustering** on college stats and physical measures to form player types. Then use **supervised learning** to see whether some types tend to succeed more in the NBA.
 
-**Data:** College basketball stats, NBA Combine data, and NBA career outcomes from Sports Reference.
+**Data:** College stats, combine-style data, and NBA outcomes from Sports Reference.
 
 ---
 
 ## 2. AI Reflection
 
-I used AI to explore project ideas that combine supervised learning with another ML technique in sports analytics. The AI suggested several directions, including draft bust/steal prediction and archetype-based modeling. I found the “aggregated success metric” approach most appealing because it allows flexibility: I can define success in a nuanced way (e.g., combining counting stats, advanced metrics, minutes) and bucket players for regression or classification. When I asked which second technique best reveals which indicators predict success, AI recommended PCA over clustering or anomaly detection—PCA loadings directly show which pre-draft variables matter. I iterated on data scope (10 seasons, college-route players only) and confirmed PCA is approved in the instructions.
+I used AI to find project paths that pair **supervised learning** with a **second ML method**. It suggested several ideas, including bust/steal style work and archetype-based modeling. I picked the **single success score** approach because I can define success in one clear way (mix of stats and longevity) and still use regression or classification. I asked which second method best answers “which indicators predict success?” The AI pointed to **PCA** over clustering or anomaly detection: loadings tie PCs back to original variables, and I can correlate PC scores with the outcome. I narrowed scope to about 10 seasons and college-route players only, and I checked that PCA is allowed in the course instructions.
 
 ---
 
 ## 3. Excerpt of AI Exchange
 
-**User:** What would be the best ML concept for the second technique if we want to figure out what indicators best predict the NBA success metric?
+**Me:** What would be the best ML concept for a second technique if I want to see which indicators best predict my NBA success metric?
 
-**AI (paraphrased):** Dimensionality reduction (PCA) is the best fit. Use PCA on pre-draft features—the loadings tell you which original variables drive each principal component. Correlate PC scores with the success metric to see which dimensions predict success. Clustering groups players into archetypes but is less direct for "which indicators matter." PCA is explicitly approved in the instructions.
+**AI (paraphrased):** Use **dimensionality reduction (PCA)**. Fit PCA on pre-draft features. Loadings show which variables drive each component. Correlate component scores with the success metric to see what predicts success. Clustering groups players but is less direct for “which variables matter.” PCA fits the instructions.
 
 ---
 
 ## 4. Final Research Question
 
-**Can we predict NBA draft prospect career success using college statistics and pre-draft data, and which pre-draft indicators best predict success?**
+**Can I predict NBA draft prospect career success using college statistics and pre-draft data, and which pre-draft indicators best predict success?**
 
 ---
 
 ## 5. Candidate Target Variable
 
-**Aggregated success metric** — A composite score combining multiple NBA career statistics, such as:
+**One combined success score** built from NBA career information, such as:
 
-- Counting statistics (points, rebounds, assists, etc.)
-- Advanced metrics (Win Shares, VORP)
-- Minutes played (longevity and role)
-- All-Star appearances (optional, if available)
+- Box score stats (points, rebounds, assists, etc.)
+- Advanced stats (Win Shares, VORP)
+- Games played (longevity and role)
+- All-Star counts (optional if easy to add)
 
-The exact formula will be defined during data exploration (e.g., weighted combination or PCA-based composite). This metric can be used for:
+I will pin down the exact formula during EDA (for example a weighted mix). I can use it for:
 
-- **Regression:** Predict the continuous success score.
-- **Classification (optional):** Threshold the metric (e.g., top 25% vs. bottom 75%) for binary or multi-class prediction.
+- **Regression:** Predict the continuous score.
+- **Classification (optional):** Split into high vs low groups (for example top quarter vs bottom quarter).
 
 ---
 
@@ -65,34 +65,34 @@ The exact formula will be defined during data exploration (e.g., weighted combin
 
 | Source | Primary / Backup | Description |
 |--------|------------------|-------------|
-| **Basketball-Reference (Sports Reference)** | Primary | College stats, NBA Draft history, NBA career stats, Combine data. Free, well-documented, widely used. All data expected from this source. |
-| **NBA.com/Stats** | Backup | Official NBA data if needed. |
-| **Kaggle NBA datasets** | Backup | Pre-aggregated draft datasets if retrieval is limited. |
+| **Basketball-Reference (Sports Reference)** | Primary | College stats, draft-related pages, NBA career stats, combine-style fields. Free and widely used. I plan to pull most data from here. |
+| **NBA.com/Stats** | Backup | Official NBA stats if I need them. |
+| **Kaggle NBA datasets** | Backup | Ready-made tables if scraping is too limited. |
 
-**Scope:** 10 seasons of draft cohorts. All players who played in the NBA (drafted or undrafted) from the college route only; international/professional/overseas prospects excluded. ~700–900 players expected. Retrieval via Basketball-Reference pages and/or Python libraries (`sportsdataverse`, `basketball_reference_scraper`), with exact steps in `data/README.md`.
+**Scope:** About 10 seasons of draft-related cohorts. Players who reached the NBA on the college path (drafted or not). I am not focusing on international-only prospects. I expect on the order of hundreds to about 900 players, depending on filters. Steps and file layout are in `data/README.md`.
 
 ---
 
 ## 7. Feasibility
 
-- **Time:** 4–5 weeks; scope is manageable with clear milestones.
-- **Compute:** Draft cohorts are typically hundreds of players per year; no GPU or distributed compute needed.
-- **Scope:** One primary dataset, 2–3 supervised models, one additional ML method (PCA). Depth over breadth.
+- **Time:** About 4–5 weeks; the plan is focused and fits the term.
+- **Compute:** Cohort sizes are modest; I do not need a GPU or distributed setup.
+- **Scope:** One main data pipeline, 2–3 supervised models, and PCA as the extra method. I am prioritizing depth over adding many extra tasks.
 
 ---
 
 ## 8. Ethical and Legal Considerations
 
-- **License:** Basketball-Reference permits non-commercial and educational use with attribution. We will cite the source and follow robots.txt / rate-limiting guidelines.
-- **Data content:** Performance statistics only; no personally identifiable or sensitive information.
-- **Interpretation:** Results will be framed as exploratory analytics, not definitive judgments about individual players.
+- **Use of the site:** Basketball-Reference allows educational and non-commercial use with credit. I will cite the source and respect robots.txt and rate limits when scraping.
+- **What the data contain:** Game and player performance stats only, not sensitive personal data.
+- **How I will present results:** As exploratory analysis, not as final labels on real people.
 
 ---
 
 ## 9. Planned Additional ML Method
 
-**PCA (Dimensionality Reduction)**  
-Apply PCA to pre-draft features (college stats, combine measurements). Loadings reveal which original variables drive each principal component. Correlate PC scores with the aggregated success metric to identify which dimensions of pre-draft performance best predict NBA success. This directly addresses the question of which indicators matter most, complementary to supervised model feature importance (SHAP, permutation importance). Optional: use t-SNE for visualization if helpful.
+**PCA (dimensionality reduction)**  
+I will run PCA on college and pre-draft features. Loadings show which original variables push each component. I will relate component scores to my success metric to see which directions in the data track NBA success. This pairs with supervised model tools like feature importance or SHAP. I might add t-SNE plots only if they help explain the story.
 
 ---
 

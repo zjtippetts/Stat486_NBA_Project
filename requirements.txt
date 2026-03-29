@@ -1,14 +1,18 @@
 # STAT 486 NBA Draft Project — Dependencies
 # Install: pip install -r requirements.txt
+# Optional full Jupyter UI: pip install -r requirements-jupyter.txt
+# (On Windows + OneDrive, that stack needs long path support or a shorter project path.)
 
 pandas>=1.5.0
 numpy>=1.21.0
 scikit-learn>=1.2.0
 matplotlib>=3.6.0
 seaborn>=0.12.0
-jupyter>=1.0.0
+ipykernel>=6.29.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+curl_cffi>=0.14.0
 
 # Data retrieval (optional; add as needed)
 # basketball-reference-scraper  # or basketball_reference_scraper
-# requests
-# beautifulsoup4

@@ -1,0 +1,6 @@
+# Full Jupyter stack (Notebook + Lab + widgets). Optional.
+# On Windows, long paths under venv can fail inside OneDrive unless long paths are enabled:
+#   https://pip.pypa.io/warnings/enable-long-paths
+# Or install from a shorter path (e.g. C:\dev\yourproject).
+
+jupyter>=1.0.0

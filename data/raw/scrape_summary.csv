@@ -1,0 +1,2 @@
+seasons_requested,season_rows,unique_players,profiles_ok,profiles_error,missing_college_link,nba_table_rows,college_table_rows,model_rows,max_players_used,norm_players,norm_nba_college_map,norm_nba_season_appearances,norm_nba_totals,norm_nba_per100,norm_nba_advanced,norm_nba_adj_shooting,norm_nba_play_by_play,norm_nba_shooting,norm_cbb_totals,norm_cbb_per100,norm_cbb_advanced
+15,9873,1812,1812,0,288,116988,20229,14042,,1812,1524,7759,22731,20919,22731,22367,0,24154,6519,6519,6519

@@ -18,7 +18,7 @@ This project uses machine learning to predict NBA draft prospect career success 
 Stat486_NBA_Project/
 ├── README.md                 # This file
 ├── instructions.md           # Course project instructions
-├── requirements.txt          # Python dependencies (to be added)
+├── requirements.txt          # Python dependencies
 │
 ├── data/                     # Data storage and access
 │   ├── README.md             # Data sources, retrieval instructions
@@ -33,6 +33,7 @@ Stat486_NBA_Project/
 ├── progress/                 # Milestone reports
 │   ├── 01_proposal.md        # Deliverable 1: Proposal
 │   ├── 02_eda.md             # Deliverable 2: Data and EDA
+│   ├── target_variable_spec.md  # Locked outcome definition (v1)
 │   ├── 03_supervised.md      # Deliverable 3: Supervised modeling
 │   └── 04_unsupervised.md    # Deliverable 4: Additional ML method
 │
@@ -57,11 +58,33 @@ Stat486_NBA_Project/
    pip install -r requirements.txt
    ```
 
-3. **Obtain data**  
-   Follow instructions in `data/README.md` to download or fetch data from Basketball-Reference.
+3. **Pull NBA + college data** (writes `data/raw/*`, crosswalk, `model_base_player_season.csv`, normalized tables, summaries)
+   ```bash
+   python -m src.data.run_data_pull
+   ```
+   Optional quick validation run (smaller sample):
+   ```bash
+   python -c "from src.data.run_data_pull import run_data_pull; run_data_pull(start_season=2025, end_season=2025, max_players=25)"
+   ```
 
-4. **Run scripts in order**  
-   (To be documented as workflows are built: data prep → EDA → modeling → evaluation.)
+4. **Optional follow-ups** (same machine, no full re-scrape unless noted)  
+   Full command reference: [`data/README.md`](data/README.md).
+
+   | Step | Command |
+   |------|---------|
+   | Rebuild normalized CSVs from current raw files | `python -m src.data.normalize_tables` |
+   | Retry NBA pages listed in `scrape_failures.csv` | `python -m src.data.retry_failed_nba` |
+   | Backfill missing college rows for crosswalk slugs | `python -m src.data.backfill_college` |
+   | Validation counts / summary | `python -m src.data.validate_data` |
+   | Integrity checks | `python -m src.data.validate_data --readiness` |
+   | Refresh `scrape_summary.csv` from disk | `python -m src.data.validate_data --refresh-summary` |
+   | Duplicate / empty-row audit | `python -m src.data.csv_audit` |
+   | Repair `scrape_failures.csv` from profiles | `python -m src.data.validate_data --repair-failures` |
+
+   Cleanup logic (deduped season appearances, dropped blank `Season` spacer rows in normalized stat tables, 429 backoff, etc.) lives in `src/data/` and runs automatically on `run_data_pull` or via the commands above.
+
+5. **EDA and modeling**  
+   Document workflow and choices in `progress/02_eda.md` and following deliverables; use `data/processed/` tables or `model_base_player_season.csv` as inputs.
 
 ---
 
@@ -77,7 +100,7 @@ Stat486_NBA_Project/
 | Deliverable | Status |
 |-------------|--------|
 | 01 Proposal | ✓ |
-| 02 Data & EDA | Pending |
+| 02 Data & EDA | Ready for submission (final review) |
 | 03 Supervised modeling | Pending |
 | 04 Additional ML method | Pending |
 
