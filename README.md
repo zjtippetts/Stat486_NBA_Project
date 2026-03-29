@@ -100,7 +100,7 @@ Stat486_NBA_Project/
 | Deliverable | Status |
 |-------------|--------|
 | 01 Proposal | ✓ |
-| 02 Data & EDA | Ready for submission (final review) |
+| 02 Data & EDA | ✓ |
 | 03 Supervised modeling | Pending |
 | 04 Additional ML method | Pending |
 
