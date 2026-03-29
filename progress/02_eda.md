@@ -12,9 +12,9 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 **What I built.** I scraped **Basketball-Reference** for NBA season totals and advanced stats and **Sports Reference college** for career college tables. I merged them into `data/processed/model_base_player_season.csv`. Each row is one NBA player-season. College career fields are the same for every season row for that player. I also saved `data/processed/player_career_summary_v1.csv` with one row per NBA player and my outcome fields.
 
-**Credit.** Data come from [Basketball-Reference](https://www.basketball-reference.com/) and [Sports Reference / College Basketball](https://www.sports-reference.com/cbb/). I use them for class work, give credit in the repo, and throttle requests in my scrapers.
+**Credit.** Data come from [Basketball-Reference](https://www.basketball-reference.com/) and [Sports Reference / College Basketball](https://www.sports-reference.com/cbb/). I use them for this class project (not for profit), name the source in the repo, and slow down requests in my scrapers so I am not hammering their servers.
 
-**Ethics.** The tables are public stats and basic bio fields. I do not use private or sensitive data. Beyond citing the source and scraping politely, I do not see an extra ethical issue for this project.
+**Legality and ethics.** The sites allow educational and non-commercial use if you credit them; my use is limited to this course and reproduction of my analysis. The tables are public game stats and simple bio fields, not private or sensitive data. I treat results as school work about patterns in the data, not as final judgments about players.
 
 ---
 
