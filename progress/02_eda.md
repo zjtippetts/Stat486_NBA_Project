@@ -36,7 +36,7 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 **College-focused modeling slice (611 players):** tier D, cohort, college id, and non-null composite. College **PER:** 602 non-null values, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null, mean **6.9**, SD **2.7**. **Recruiting rank:** 360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
 
-**Correlations.** In `02_eda_college.ipynb` I correlated selected college fields with `success_composite_v1`. The heatmap is `progress/figures/eda_cbb_feature_correlation.png`. College PER and the composite correlated about **0.28** in that run—useful signal, but not tight enough to predict one player perfectly.
+**Correlations.** In `02_eda_college.ipynb` I correlated selected college fields with `success_composite_v1`. **Figure 8** in section 4 shows the full heatmap in this report. College PER and the composite correlated about **0.28** in that run—useful signal, but not tight enough to predict one player perfectly.
 
 **Takeaway.** The outcome spans a couple of standard deviations on the composite scale. College advanced stats help on average but leave a lot of noise. Recruiting rank is missing for many players; even when it is there, it only partly lines up with my NBA success score.
 
@@ -44,29 +44,75 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 ## 4) Visual exploration
 
-All plots are in `progress/figures/`. Here is what each one is for.
+The plots below are **included in this report** so a reader does not have to open the notebooks to see them. The same PNG files live in `progress/figures/`. I made the NBA outcome plots in `02_eda_outcomes.ipynb` and the college plots in `02_eda_college.ipynb`.
 
-**NBA outcomes (`02_eda_outcomes.ipynb`).**
+### NBA outcome figures
 
+#### Figure 1 — Career games by run tier (B / C / D)
 
-| Figure                           | What it shows                                 | Why it matters for my question                                                           |
-| -------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `eda_tier_career_games.png`      | Career games by tier B/C/D.                   | Shows how many players had a short NBA run vs a long one, and who even gets a composite. |
-| `eda_success_composite_hist.png` | Histogram of `success_composite_v1`.          | Shows the shape of the outcome I want to predict later.                                  |
-| `eda_fp_vs_career_games.png`     | Mean fantasy points per game vs career games. | Shows how scoring rate and longevity relate; my outcome mixes both.                      |
-| `eda_z_correlation.png`          | Fantasy z-score vs longevity z-score.         | Shows whether stars are high on both parts or only one.                                  |
+![Career total games by NBA run tier B, C, and D](figures/eda_tier_career_games.png)
 
+**What it shows.** Total NBA games played, split by my run-tier labels (fringe vs one qualifying year vs two or more).
 
-**College side (`02_eda_college.ipynb`).**
+**Why it matters.** It shows how many players had a short NBA career compared with a long one, and which group is large enough to support a stable outcome. Only tier D players get `success_composite_v1`, so this motivates that choice.
 
+#### Figure 2 — Distribution of the success composite
 
-| Figure                             | What it shows                                         | Why it matters for my question                                                          |
-| ---------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `eda_cbb_missingness.png`          | Share missing for key college and recruiting columns. | Tells me which features I can trust for modeling; recruiting is especially spotty.      |
-| `eda_cbb_per_distribution.png`     | College PER for the modeling slice.                   | Shows the main college skill summary I will use with other `cbb_*` fields.              |
-| `eda_cbb_recruit_vs_composite.png` | Recruit rank vs composite when both exist.            | Checks whether hype lines up with my NBA score; expect scatter.                         |
-| `eda_cbb_feature_correlation.png`  | Correlation heatmap.                                  | Quick view of how inputs relate to each other and to the outcome before PCA and models. |
+![Histogram of success composite v1](figures/eda_success_composite_hist.png)
 
+**What it shows.** The distribution of `success_composite_v1` for players who receive it (tier D and entry cohort).
+
+**Why it matters.** This is the **target** I want to predict from college and pre-draft data. The shape tells me how spread out success is and whether the scale is roughly symmetric or skewed.
+
+#### Figure 3 — Mean fantasy points per game vs career games
+
+![Scatter of mean fantasy points per game versus career games](figures/eda_fp_vs_career_games.png)
+
+**What it shows.** Each point is a player: mean fantasy points per game (qualifying seasons) on one axis and career games on the other.
+
+**Why it matters.** My composite mixes **scoring load** and **longevity**. This plot shows how those two ideas show up together in the data before I combine them into one score.
+
+#### Figure 4 — Fantasy z-score vs longevity z-score
+
+![Scatter of z-scored fantasy mean versus z-scored longevity](figures/eda_z_correlation.png)
+
+**What it shows.** The two z-scored pieces of the composite plotted against each other.
+
+**Why it matters.** Some players are high on both parts; some lean on games played or on per-game production. That matters for interpreting the composite and for thinking about what college stats might predict.
+
+### College and pre-draft figures
+
+#### Figure 5 — Missing data on college and recruiting fields
+
+![Bar chart of percent missing for college and recruiting columns](figures/eda_cbb_missingness.png)
+
+**What it shows.** How much is missing for key `cbb_*` and recruiting columns in my supervised-style sample (tier D, cohort, college id, non-null composite).
+
+**Why it matters.** I need to know which predictors I can rely on in the next step. Recruiting fields are especially incomplete, so I may need to drop them or handle missing values carefully.
+
+#### Figure 6 — College PER in the modeling slice
+
+![Histogram of college career PER](figures/eda_cbb_per_distribution.png)
+
+**What it shows.** Distribution of college career PER for players in the slice above.
+
+**Why it matters.** PER is a simple summary of college productivity. The spread shows how different these players were in college before we look at NBA outcomes.
+
+#### Figure 7 — Recruiting rank vs success composite
+
+![Scatter of recruiting rank versus success composite](figures/eda_cbb_recruit_vs_composite.png)
+
+**What it shows.** Recruiting rank (where available) against `success_composite_v1`. Lower rank means a more highly ranked recruit.
+
+**Why it matters.** It checks whether **pre-draft hype** lines up with my NBA success metric. There is a lot of scatter, which matches the moderate correlations in section 3.
+
+#### Figure 8 — Correlation heatmap (college features and composite)
+
+![Heatmap of correlations among college features and success composite](figures/eda_cbb_feature_correlation.png)
+
+**What it shows.** Pairwise correlations between selected college stats and the outcome.
+
+**Why it matters.** It gives a compact view of which college variables move together and which relate most to the composite before I fit models or run PCA.
 
 ---
 
@@ -88,7 +134,7 @@ The hardest part was **scraping**: rate limits, a few bad pages, and many player
 
 ## Submission checklist (Deliverable 2)
 
-- This file: overview, variables, preprocessing, numbers, correlations, plots explained, reflection.  
+- This file: overview, variables, preprocessing, numbers, correlations, **figures embedded in section 4** with relevance text, reflection.  
 - Notebooks: `notebooks/02_eda_outcomes.ipynb`, `notebooks/02_eda_college.ipynb`.  
 - Figures in `progress/figures/` (re-run notebooks if I change code).  
 - Canvas: repo link and note *Deliverable 2 complete* when I submit.
