@@ -16,9 +16,6 @@ Non-college signals (no full re-scrape required):
     missing or non-matching labels.
 
 College advanced only for rates (no ``cbb_totals_*`` / ``cbb_per100_*`` in this table).
-
-Height/weight are scraped into the profile crosswalk for optional future use but are **not**
-used in Deliverable 3 v1 (avoids depending on a long full ``run_data_pull``).
 """
 
 from __future__ import annotations
