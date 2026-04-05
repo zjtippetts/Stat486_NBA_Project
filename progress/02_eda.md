@@ -10,7 +10,7 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 **Research question.** Can I predict NBA career success for college-route players using college stats and pre-draft information, and which pre-draft inputs matter most? (I stated this in `progress/01_proposal.md`.)
 
-**What I built.** I scraped **Basketball-Reference** for NBA season totals and advanced stats and **Sports Reference college** for career college tables. I merged them into `data/processed/model_base_player_season.csv`. Each row is one NBA player-season. College career fields are the same for every season row for that player. I also saved `data/processed/player_career_summary_v1.csv` with one row per NBA player and my outcome fields.
+**What I built.** I scraped **Basketball-Reference** for NBA season totals and advanced stats and **Sports Reference college** for per-season college tables. I merged them into `data/processed/model_base_player_season.csv`. Each row is one NBA player-season. College `cbb_*` fields use each player's **final (most recent) NCAA season**, not the site **Career** aggregate, and repeat on every NBA season row for that player. I also saved `data/processed/player_career_summary_v1.csv` with one row per NBA player and my outcome fields.
 
 **Credit.** Data come from [Basketball-Reference](https://www.basketball-reference.com/) and [Sports Reference / College Basketball](https://www.sports-reference.com/cbb/). I use them for this class project (not for profit), name the source in the repo, and slow down requests in my scrapers so I am not hammering their servers.
 
@@ -20,11 +20,11 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 ## 2) Data description, target variable, and preprocessing
 
-**Outcome I plan to predict later.** I call it `success_composite_v1`. It applies only to players whose **first NBA season** is between **2011–12** and **2022–23** (my **entry cohort**) and who have **tier D**: at least **two** seasons with **G ≥ 10** and **MP ≥ 100** (my **qualifying** seasons). The score is **0.55 × z(mean fantasy points per game in qualifying seasons) + 0.45 × z(log(1 + career games))**. Fantasy points follow a fixed box-score recipe in `target_variable_spec.md`. Players in tiers **B** and **C** do not get this score; I kept them in the summary for counts and context.
+**Outcome I plan to predict later.** I call it `success_composite_v1`. It applies only to players whose **first NBA season** is between **2011–12** and **2022–23** (my **entry cohort**) and who have **tier D**: at least **two** seasons with **G ≥ 10** and **MP ≥ 100** (my **qualifying** seasons). The score is **0.70 × z(mean fantasy points per game in qualifying seasons) + 0.30 × z(log(1 + r))**, where **r** is **career games** divided by **82 ×** the number of seasons from NBA debut through the **latest season in my panel** (opportunity-adjusted longevity). I weight fantasy higher so stars who miss time still score closer to their on-court impact; longevity still nudges the ranking. Fantasy points follow a fixed box-score recipe in `target_variable_spec.md`. Players in tiers **B** and **C** do not get this score; I kept them in the summary for counts and context.
 
-**Inputs (pre-NBA).** Columns starting with `cbb_totals_`, `cbb_per100_`, and `cbb_advanced_` (for example college PER and BPM), plus `recruiting_rank` and `recruiting_year` when they exist. In `02_eda_college.ipynb` I focused on the subset with tier **D**, entry cohort, a non-null `college_player_id`, and a non-null composite—that is the sample I can use later for supervised learning with both sides filled in.
+**Inputs (pre-NBA).** Columns starting with `cbb_totals_`, `cbb_per100_`, and `cbb_advanced_` (for example college PER and BPM), plus `recruiting_rank` and `recruiting_year` when they exist. In `02_eda_college.ipynb` I used the subset with tier **D**, entry cohort, a non-null `college_player_id`, and a non-null composite for plots and correlations. **Deliverable 3** (`progress/03_supervised.md`) trains on **`nba_debut_age`**, **rookie NBA position dummies** (`Pos` on earliest season after dedupe), and **college advanced (`cbb_advanced_*`)**—no recruiting—plus a **complete case on `cbb_advanced_BPM`**. See `src/models/training_data.py`. Re-run EDA notebooks only if you change `model_base` or career summary on purpose; if a data pull was interrupted, restore processed CSVs or see `data/README.md` (“Interrupted `run_data_pull`”).
 
-**What I did to clean the data.** (1) For each player-season, I kept one NBA row; when a combined multi-team row (`2TM` / `3TM`) was present, I kept that row so I would not double-count. (2) I marked qualifying seasons using the G and MP rules above. (3) I rolled up to one career row per player, assigned tiers, and computed the composite where the rules apply. (4) For college summaries I collapsed to one row per `nba_player_id`. Recruiting fields were often missing; I report those gaps in section 3.
+**What I did to clean the data.** (1) For each player-season, I kept one NBA row; when a combined multi-team row (`2TM` / `3TM`) was present, I kept that row so I would not double-count. (2) I marked qualifying seasons using the G and MP rules above. (3) I rolled up to one career row per player, assigned tiers, and computed the composite where the rules apply. (4) College stats on `model_base` are keyed by `college_player_id` and taken from the **last college season** in the scrape. Recruiting fields were often missing; I report those gaps in section 3.
 
 ---
 
@@ -34,9 +34,9 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 **Composite (713 players).** Mean is about **0** and standard deviation about **0.91** because of the z-score step. Min about **−1.81**, max about **2.94**.
 
-**College-focused modeling slice (611 players):** tier D, cohort, college id, and non-null composite. College **PER:** 602 non-null values, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null, mean **6.9**, SD **2.7**. **Recruiting rank:** 360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
+**College-focused modeling slice (611 players):** tier D, cohort, college id, and non-null composite. College **PER** (last NCAA season on `model_base`): 602 non-null values, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null, mean **6.9**, SD **2.7**. (Re-run this notebook after changing `model_base` merge logic; counts shift slightly.) **Recruiting rank:** 360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
 
-**Correlations.** In `02_eda_college.ipynb` I correlated selected college fields with `success_composite_v1`. **Figure 8** in section 4 shows the full heatmap in this report. College PER and the composite correlated about **0.28** in that run—useful signal, but not tight enough to predict one player perfectly.
+**Correlations.** In `02_eda_college.ipynb` I correlated **`nba_debut_age`**, rookie **position dummies**, **college advanced** fields, and (for EDA only) **recruiting_rank** with `success_composite_v1`. **Figure 8** in section 4 shows the heatmap. After **opportunity-adjusting** the longevity leg of the composite (see `target_variable_spec.md` §5), college PER and the composite correlate about **0.24** on the supervised slice—re-run the notebook to refresh plots; useful signal, but not tight enough to predict one player perfectly.
 
 **Takeaway.** The outcome spans a couple of standard deviations on the composite scale. College advanced stats help on average but leave a lot of noise. Recruiting rank is missing for many players; even when it is there, it only partly lines up with my NBA success score.
 
@@ -62,7 +62,7 @@ The plots below are **included in this report** so a reader does not have to ope
 
 **What it shows.** The distribution of `success_composite_v1` for players who receive it (tier D and entry cohort).
 
-**Why it matters.** This is the **target** I want to predict from college and pre-draft data. The shape tells me how spread out success is and whether the scale is roughly symmetric or skewed.
+**Why it matters.** This is the **target** I want to predict from college-side data (and I explored recruiting in EDA). The shape tells me how spread out success is and whether the scale is roughly symmetric or skewed.
 
 #### Figure 3 — Mean fantasy points per game vs career games
 
@@ -88,13 +88,13 @@ The plots below are **included in this report** so a reader does not have to ope
 
 **What it shows.** How much is missing for key `cbb_*` and recruiting columns in my supervised-style sample (tier D, cohort, college id, non-null composite).
 
-**Why it matters.** I need to know which predictors I can rely on in the next step. Recruiting fields are especially incomplete, so I may need to drop them or handle missing values carefully.
+**Why it matters.** I need to know which predictors I can rely on. Recruiting fields are especially incomplete; that is one reason my **supervised models omit recruiting** and use college advanced stats only (`03_supervised.md`).
 
 #### Figure 6 — College PER in the modeling slice
 
-![Histogram of college career PER](figures/eda_cbb_per_distribution.png)
+![Histogram of college PER (last NCAA season)](figures/eda_cbb_per_distribution.png)
 
-**What it shows.** Distribution of college career PER for players in the slice above.
+**What it shows.** Distribution of college PER (`cbb_advanced`, final NCAA season) for players in the slice above.
 
 **Why it matters.** PER is a simple summary of college productivity. The spread shows how different these players were in college before we look at NBA outcomes.
 
@@ -104,11 +104,11 @@ The plots below are **included in this report** so a reader does not have to ope
 
 **What it shows.** Recruiting rank (where available) against `success_composite_v1`. Lower rank means a more highly ranked recruit.
 
-**Why it matters.** It checks whether **pre-draft hype** lines up with my NBA success metric. There is a lot of scatter, which matches the moderate correlations in section 3.
+**Why it matters.** It checks whether **pre-draft hype** lines up with my NBA success metric (EDA only—I do not use recruiting in my current supervised feature set). There is a lot of scatter, which matches the moderate correlations in section 3.
 
-#### Figure 8 — Correlation heatmap (college features and composite)
+#### Figure 8 — Correlation heatmap (demographics, college advanced, recruiting vs composite)
 
-![Heatmap of correlations among college features and success composite](figures/eda_cbb_feature_correlation.png)
+![Heatmap of correlations: demographics, college advanced, recruiting vs composite](figures/eda_cbb_feature_correlation.png)
 
 **What it shows.** Pairwise correlations between selected college stats and the outcome.
 
@@ -118,7 +118,7 @@ The plots below are **included in this report** so a reader does not have to ope
 
 ## 5) Challenges and reflection
 
-The hardest part was **scraping**: rate limits, a few bad pages, and many players with **no college URL** (on the order of **~300** in the project notes), so they have no `cbb_*` block. I treated them separately in EDA and will only train with players who have college data. **Active players** also have careers that are not finished, so games played will grow over time. I do **not** adjust fantasy points for NBA era; the score can mix real skill with league-wide scoring trends. I write that down instead of changing the v1 rule for this deliverable.
+The hardest part was **scraping**: rate limits, a few bad pages, and many players with **no college URL** (on the order of **~300** in the project notes), so they have no `cbb_*` block. I treated them separately in EDA and only train on players with college data. For **Deliverable 3** I stuck to **college advanced** predictors only and dropped rows missing **college BPM** (see `03_supervised.md`). **Active players** also have careers that are not finished, so games played will grow over time. I do **not** adjust fantasy points for NBA era; the score can mix real skill with league-wide scoring trends. I write that down instead of changing the v1 rule for this deliverable.
 
 ---
 
@@ -128,7 +128,7 @@ The hardest part was **scraping**: rate limits, a few bad pages, and many player
 
 **Tier D only.** Models fit on `success_composite_v1` only learn from players who reached **two** qualifying seasons. A low prediction does **not** mean “will wash out” unless I add a separate model for that. Details are in `target_variable_spec.md`.
 
-**Other.** The composite is a teaching and analysis choice, not a claim about “true” player value. Some shooting breakdown columns are not filled in `model_base` in my current merge; I can use separate shooting CSVs if I need them.
+**Other.** The composite is a teaching and analysis choice, not a claim about “true” player value. Some shooting breakdown columns are not filled in `model_base` in my current merge; I can use separate shooting CSVs if I need them. **Supervised v1** does not include recruiting features; PCA (Deliverable 4) may still use a wider pre-draft set.
 
 ---
 

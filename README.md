@@ -37,7 +37,7 @@ Stat486_NBA_Project/
 │   ├── 03_supervised.md      # Deliverable 3: Supervised modeling
 │   └── 04_unsupervised.md    # Deliverable 4: Additional ML method
 │
-├── notebooks/                # Jupyter notebooks (EDA, demos)
+├── notebooks/                # EDA + supervised modeling (e.g. 03_supervised_modeling.ipynb)
 └── demo/                     # Demo artifact (.ipynb or Streamlit app)
 ```
 
@@ -62,6 +62,7 @@ Stat486_NBA_Project/
    ```bash
    python -m src.data.run_data_pull
    ```
+   A full pull can take **roughly an hour or more**. If you stop it midway, see **`data/README.md` → “Interrupted `run_data_pull`”** for cleanup / git restore. **Supervised v1** does not require finishing a pull for height/weight.
    Optional quick validation run (smaller sample):
    ```bash
    python -c "from src.data.run_data_pull import run_data_pull; run_data_pull(start_season=2025, end_season=2025, max_players=25)"
@@ -80,11 +81,16 @@ Stat486_NBA_Project/
    | Refresh `scrape_summary.csv` from disk | `python -m src.data.validate_data --refresh-summary` |
    | Duplicate / empty-row audit | `python -m src.data.csv_audit` |
    | Repair `scrape_failures.csv` from profiles | `python -m src.data.validate_data --repair-failures` |
+   | Rebuild `model_base` + normalized tables from saved raw CSVs (no scrape) | `python -m src.data.rebuild_model_base` |
 
    Cleanup logic (deduped season appearances, dropped blank `Season` spacer rows in normalized stat tables, 429 backoff, etc.) lives in `src/data/` and runs automatically on `run_data_pull` or via the commands above.
 
 5. **EDA and modeling**  
-   Document workflow and choices in `progress/02_eda.md` and following deliverables; use `data/processed/` tables or `model_base_player_season.csv` as inputs.
+   Document workflow in `progress/02_eda.md` and `progress/03_supervised.md`. Supervised models use **college advanced** from each player's **last NCAA season** on `model_base` (see `src/data/run_data_pull.py`), plus **debut age** and **rookie position**. **Ridge, LassoCV, random forest, gradient boosting** (recruiting excluded), **BPM complete-case** filtering. Implementation: **`src/models/evaluate_supervised.py`** (tuning, test metrics, permutation importance); modeling table: **`src/models/training_data.py`**. Run either:  
+   ```bash
+   python -m src.models.evaluate_supervised
+   ```  
+   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`progress/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary. The **markdown report** (`progress/03_supervised.md`) is not auto-updated—edit it if you need prose/tables to match a new run.
 
 ---
 
@@ -101,7 +107,7 @@ Stat486_NBA_Project/
 |-------------|--------|
 | 01 Proposal | ✓ |
 | 02 Data & EDA | ✓ |
-| 03 Supervised modeling | Pending |
+| 03 Supervised modeling | ✓ (see `03_supervised.md`; re-run script for fresh metrics) |
 | 04 Additional ML method | Pending |
 
 ---

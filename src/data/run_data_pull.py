@@ -83,6 +83,37 @@ def _season_start_from_str(season_str: str) -> float:
     return float("-inf")
 
 
+def _cbb_last_season_row_per_player(frame: pd.DataFrame) -> pd.DataFrame:
+    """
+    One row per ``college_player_id`` from the **most recent** NCAA season row.
+
+    Sports Reference includes a **Career** summary row; we skip it when any
+    ``YYYY-YY`` season rows exist so college features match the player's final
+    college year (not a full-career aggregate).
+    """
+    if frame.empty:
+        return frame
+    if "Season" not in frame.columns or "college_player_id" not in frame.columns:
+        return (
+            frame.sort_values("college_player_id")
+            .groupby("college_player_id", as_index=False)
+            .tail(1)
+        )
+    s = frame["Season"].astype(str)
+    is_year = s.str.match(r"^\d{4}-\d{2}$", na=False)
+    season_rows = frame.loc[is_year].copy()
+    if season_rows.empty:
+        career_only = frame[s.str.lower() == "career"].copy()
+        if not career_only.empty:
+            return career_only
+        return frame.groupby("college_player_id", as_index=False).head(1)
+    season_rows["__y0"] = season_rows["Season"].astype(str).str[:4].astype(int)
+    picked = season_rows.sort_values(["college_player_id", "__y0"]).groupby(
+        "college_player_id", as_index=False
+    ).tail(1)
+    return picked.drop(columns=["__y0"])
+
+
 def _nba_scrape_failures_log(profile_df: pd.DataFrame) -> pd.DataFrame:
     """Rows for scrape_failures.csv from failed NBA profile fetches."""
     err = profile_df[profile_df["scrape_status"] == "error"]
@@ -94,18 +125,24 @@ def _nba_scrape_failures_log(profile_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _build_crosswalk(profile_df: pd.DataFrame) -> pd.DataFrame:
+    df = profile_df.copy()
+    for col in ("height_inches", "weight_lb"):
+        if col not in df.columns:
+            df[col] = pd.NA
     cols = [
         "nba_player_id",
         "nba_player_url",
         "college_player_id",
         "college_url",
         "birthday",
+        "height_inches",
+        "weight_lb",
         "recruiting_year",
         "recruiting_rank",
         "scrape_status",
         "error",
     ]
-    return profile_df[cols].copy()
+    return df[cols].copy()
 
 
 def _build_model_base_player_season(
@@ -135,29 +172,14 @@ def _build_model_base_player_season(
         if frame.empty:
             continue
 
-        if "Season" in frame.columns:
-            career_rows = frame[frame["Season"].astype(str).str.lower() == "career"].copy()
-            if career_rows.empty:
-                frame["__season_start"] = frame["Season"].astype(str).map(_season_start_from_str)
-                career_rows = (
-                    frame.sort_values("__season_start")
-                    .groupby("college_player_id", as_index=False)
-                    .tail(1)
-                    .drop(columns=["__season_start"])
-                )
-        else:
-            career_rows = (
-                frame.sort_values("college_player_id")
-                .groupby("college_player_id", as_index=False)
-                .tail(1)
-            )
+        picked = _cbb_last_season_row_per_player(frame)
 
         drop_cols = {"table_id", "college_url"}
-        keep_cols = [c for c in career_rows.columns if c not in drop_cols]
-        career_rows = career_rows[keep_cols].copy()
-        rename_map = {c: f"cbb_{tid}_{c}" for c in career_rows.columns if c != "college_player_id"}
-        career_rows = career_rows.rename(columns=rename_map)
-        college_career_frames.append(career_rows)
+        keep_cols = [c for c in picked.columns if c not in drop_cols]
+        picked = picked[keep_cols].copy()
+        rename_map = {c: f"cbb_{tid}_{c}" for c in picked.columns if c != "college_player_id"}
+        picked = picked.rename(columns=rename_map)
+        college_career_frames.append(picked)
 
     if not college_career_frames:
         return base

@@ -16,8 +16,8 @@ This document locks **definitions** for EDA (Deliverable 2) and later supervised
 | Choice | v1 decision |
 |--------|-------------|
 | **Outcome grain** | One **career summary row per `nba_player_id`** (aggregate from `model_base_player_season.csv` season rows). |
-| **Season input file** | `data/processed/model_base_player_season.csv` — NBA totals + merged advanced (`VORP`, `PER`, `BPM`, `WS`, …) + crosswalk + `cbb_*` career blocks. |
-| **Features for modeling (later)** | College-side columns (`cbb_*`) + recruiting fields for players with a college link; players without college are a separate population for EDA. |
+| **Season input file** | `data/processed/model_base_player_season.csv` — NBA totals + merged advanced (`VORP`, `PER`, `BPM`, `WS`, …) + crosswalk + `cbb_*` from each player's **last NCAA season** (not SR **Career** row; same values repeated on every NBA season row for that player). |
+| **Features for modeling (later)** | **Deliverable 3 (v1):** **`nba_debut_age`** (birthday + first NBA season), **rookie NBA position dummies** (from `Pos` on earliest deduped season), plus college **`cbb_advanced_*`** only, with **complete case on `cbb_advanced_BPM`**. Recruiting is **not** in the supervised set (sparse—see EDA). `cbb_totals_*` / `cbb_per100_*` are omitted to limit collinearity. **Height/weight** are not required for v1 (optional raw profile fields after a full pull). Recruiting and other `cbb_*` blocks remain in `model_base` for EDA and **v1.1** / PCA. |
 
 ### 2.1 One row per player–season (required before any sum or mean)
 
@@ -99,14 +99,22 @@ No VORP, DWS, or other advanced index in the outcome — **simpler to explain** 
 | Component | Definition | Notes |
 |-----------|------------|-------|
 | **A. Box fantasy** | z-scored **mean `FP_per_game`** over qualifying seasons | Tier **D** + entry cohort only. |
-| **B. Longevity** | z-scored **`log(1 + career_games)`** | Same eligibility. |
+| **B. Longevity (opportunity-adjusted)** | z-scored **`log(1 + r)`** where **`r = career_games / (eligible_seasons × 82)`** | Same eligibility (tier D + cohort). |
+
+**Opportunity denominator (locked with v1 composite):**
+
+- **`longevity_window_end_year`:** latest season start year present in deduped `model_base_player_season` (e.g. `2024` for `2024-25`).  
+- **`eligible_seasons`:** inclusive count of NBA seasons from **`first_season_start_year`** through that end year, at least **1** (only defined when debut year parses as **1990 … window_end**).  
+- **`r`** is the share of **nominal** regular-season games (**82** per eligible season) actually played; **lockout / COVID-shortened seasons are not** rescaled (document in limitations).
 
 **Blend weights (sum to 1):**
 
-- `w_A = 0.55` (fantasy career mean)  
-- `w_B = 0.45` (longevity)
+- `w_A = 0.70` (fantasy career mean)  
+- `w_B = 0.30` (longevity)
 
-**Optional v1.1:** 50/50 split, or add a third pillar (e.g. prime-season FP) if you revisit later.
+*Rationale (v1):* weight **per-game box productivity** higher so players who are **very impactful when on the floor** are not pulled down as harshly by a **low games-played share**; durability still matters (e.g. separates ironmen from part-time high-per-minute guys).
+
+**Optional v1.1:** revisit split (e.g. 0.65/0.35) or add a third pillar (e.g. prime-season FP).
 
 ---
 
@@ -122,13 +130,14 @@ No VORP, DWS, or other advanced index in the outcome — **simpler to explain** 
 | Population | Use |
 |------------|-----|
 | **EDA** | Full scraped sample; report **tier A/B/C/D** counts; missingness for `cbb_*`. |
-| **Supervised v1** | **Tier D** + **non-null college features** + entry cohort (section 10.1). |
+| **Supervised v1** | **Tier D** + **entry cohort** + **college id** + non-null composite; **features:** `nba_debut_age` + rookie **`Pos`** dummies + `cbb_advanced_*`, **BPM** complete-case, **no recruiting** (`src/models/training_data.py`). |
 
 ---
 
 ## 8. Known limitations (document in EDA)
 
-- **Active players:** `career_games` (and thus longevity) are **censored**.  
+- **Active players:** `career_games` (and thus longevity) are **censored**; the opportunity denominator still runs through the latest season in the scrape, so recent debuts have a smaller denominator.  
+- **82 games/year** is a **nominal** schedule; shortened seasons inflate **`r`** slightly for players who played “every” game that year.  
 - **~288 players** without `college_url` — no `cbb_*`; exclude or analyze separately.  
 - **Shooting-by-distance / `Shooting_*` / `League-Adjusted_*` / dunk & corner columns** in model base are **all empty** in the current pipeline — those tables were **never merged** into `model_base` (only totals + advanced are). Use `nba_shooting.csv` / `nba_adj_shooting.csv` in the notebook if you need them; absence in model base is **not** a scrape failure.
 
@@ -172,5 +181,5 @@ No VORP, DWS, or other advanced index in the outcome — **simpler to explain** 
 | Primary composite | Tier **D** only (≥2 qualifying seasons) |
 | Entry cohort | First season `2011-12` … `2022-23` |
 | Target | Continuous + optional quartile class |
-| Composite | 0.55·z(fantasy mean) + 0.45·z(log(1+career games)); no VORP/DWS |
+| Composite | 0.70·z(fantasy mean) + 0.30·z(log(1+r)); **r** = games / (eligible seasons × 82); no VORP/DWS |
 | Run tiers | A no line / B fringe / C one year / D primary |

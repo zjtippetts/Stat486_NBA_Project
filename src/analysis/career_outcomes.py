@@ -4,7 +4,8 @@ Career outcome construction aligned with progress/target_variable_spec.md (v1).
 - Dedupe multi-team seasons (keep 2TM/3TM/4TM row when present).
 - Qualifying season: G >= 10 and MP >= 100.
 - Entry cohort: first season start year in [2011, 2022] (2011-12 … 2022-23).
-- Tiers A–D; composite = z(fantasy mean) + z(log career games) for tier D + entry cohort only.
+- Tiers A–D; composite = 0.70*z(fantasy mean) + 0.30*z(log1p(games/opportunity)) for tier D + cohort.
+  Opportunity = 82 * seasons from NBA debut through latest season in ``model_base``.
 """
 
 from __future__ import annotations
@@ -20,8 +21,11 @@ ENTRY_YEAR_MAX: Final = 2022
 MIN_G_QUAL: Final = 10
 MIN_MP_QUAL: Final = 100
 # Two-part composite only (no VORP/DWS) — easier to explain for STAT 486.
-W_FANTASY: Final = 0.55
-W_LONGEVITY: Final = 0.45
+# Emphasize per-game impact; longevity still nerf/bumps but does not dominate (e.g. stars with missed games).
+W_FANTASY: Final = 0.70
+W_LONGEVITY: Final = 0.30
+# Nominal regular-season games per year for opportunity denominator (lockouts not adjusted).
+REGULAR_SEASON_GAMES_PER_YEAR: Final = 82
 
 
 def season_start_year(season: str | float | int) -> int:
@@ -135,6 +139,24 @@ def build_player_career_summary(
         for _, r in summ.iterrows()
     ]
 
+    sy = d["_season_y0"]
+    valid_end = sy[sy >= 1990]
+    window_end_year = int(valid_end.max()) if len(valid_end) else int(np.nanmax(sy.to_numpy(dtype=float)))
+    summ["longevity_window_end_year"] = window_end_year
+    deb = summ["first_season_start_year"]
+    ok_debut = deb.between(1990, window_end_year)
+    summ["longevity_eligible_seasons"] = np.where(
+        ok_debut,
+        np.maximum(1, window_end_year - deb + 1),
+        np.nan,
+    )
+    summ["longevity_nominal_max_games"] = (
+        summ["longevity_eligible_seasons"] * REGULAR_SEASON_GAMES_PER_YEAR
+    )
+    summ["longevity_games_vs_opportunity"] = summ["career_games"] / summ[
+        "longevity_nominal_max_games"
+    ]
+
     eligible_mask = (summ["nba_run_tier"] == "D") & summ["entry_cohort"]
     sub = summ.loc[eligible_mask].copy()
 
@@ -151,7 +173,8 @@ def build_player_career_summary(
 
     if not sub.empty:
         zf = _z(sub["mean_fp_per_game_qual"])
-        zl = _z(np.log1p(sub["career_games"]))
+        # z-score log1p(share of nominal regular-season games vs opportunity window)
+        zl = _z(np.log1p(sub["longevity_games_vs_opportunity"]))
         idx = sub.index
         summ.loc[idx, "z_fantasy"] = zf.values
         summ.loc[idx, "z_longevity"] = zl.values

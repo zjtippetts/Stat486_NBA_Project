@@ -64,12 +64,29 @@ def _extract_bio_fields(html: str) -> dict:
         if fallback is not None and fallback.get("href"):
             college_url = urljoin(BASE_URL, fallback["href"])
 
+    # Optional raw fields for future modeling; Deliverable 3 v1 uses Pos/age from tables + birthday instead.
+    height_inches = None
+    weight_lb = None
+    if info is not None:
+        blob = info.get_text(" ", strip=True)
+        # e.g. "6-10 , 253lb" in #info (avoid matching season labels like 2011-12: feet are 4–7).
+        hm = re.search(r"\b([4-7])-(\d{1,2})\b", blob)
+        if hm:
+            ft, inch = int(hm.group(1)), int(hm.group(2))
+            if inch <= 11:
+                height_inches = float(ft * 12 + inch)
+        wm = re.search(r"\b(\d{2,3})\s*lb", blob, re.I)
+        if wm:
+            weight_lb = float(wm.group(1))
+
     return {
         "birthday": birthday,
         "recruiting_year": recruiting_year,
         "recruiting_rank": recruiting_rank,
         "college_url": college_url,
         "college_player_id": parse_cbb_id_from_url(college_url),
+        "height_inches": height_inches,
+        "weight_lb": weight_lb,
     }
 
 
@@ -122,6 +139,8 @@ def fetch_nba_player_profiles(
                 "recruiting_rank": None,
                 "college_url": None,
                 "college_player_id": None,
+                "height_inches": None,
+                "weight_lb": None,
                 "scrape_status": "error",
                 "error": str(exc),
             }

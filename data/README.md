@@ -92,6 +92,27 @@ python -m src.data.retry_failed_nba --max-workers 2
 
 (Run when you are not in a hurry; use `--max-workers 2` or `1` if you still see 429s.)
 
+**Rebuild `model_base` only** (no HTTP): after changing how college rows are merged (e.g. last season vs career), refresh `model_base_player_season.csv` and normalized splits from existing raw CSVs:
+
+```bash
+python -m src.data.rebuild_model_base
+```
+
+Requires `data/raw/nba_player_tables_long.csv`, `data/raw/college_player_tables_long.csv`, and `data/processed/player_id_crosswalk.csv`.
+
+---
+
+## Interrupted `run_data_pull`
+
+If you **stop** a full pull partway through:
+
+- **`data/raw/`** (`nba_player_profile_fields.csv`, `nba_player_tables_long.csv`, `college_player_tables_long.csv`, …) and **`data/processed/model_base_player_season.csv`** may be **partial or inconsistent** until you finish a clean run.
+- **Restore known-good processed files** with git when needed, e.g.  
+  `git checkout -- data/processed/model_base_player_season.csv`  
+  (and any other paths that look truncated), **or** let a **full** pull complete when you have time (often **45 min–several hours**).
+- **Deliverable 2 (EDA):** Re-run outcome/college notebooks only if you **intentionally** changed `model_base` or `player_career_summary_v1.csv` and want figures to match. An aborted pull does not by itself require redoing EDA if you **revert** processed data.
+- **Deliverable 3:** Run `python -m src.models.evaluate_supervised` after any change to the modeling inputs. **Supervised v1** does **not** depend on a completed pull for height/weight — it uses **debut age** and **rookie `Pos`** from existing `model_base` plus college advanced (see `src/models/training_data.py`).
+
 ---
 
 ## Output files
@@ -151,4 +172,4 @@ Join keys: `nba_player_id` within NBA tables; `nba_college_map` links to `cbb_*`
 
 - Respect rate limits when scraping; reruns may take substantial time for full-player pulls.
 - Store raw data locally; do not re-scrape unnecessarily.
-- Document any modeling-specific filters (e.g. only `YYYY-YY` seasons, exclude career rows) in `progress/02_eda.md`.
+- Document EDA choices in `progress/02_eda.md`. **Supervised modeling (Deliverable 3)** filters and features are in `progress/03_supervised.md` and `src/models/training_data.py` (**`nba_debut_age`**, **rookie NBA position dummies** from `Pos`, college **`cbb_advanced_*`**, **no recruiting**, **complete case on college BPM**; height/weight optional for future pulls only). Permutation-importance table: `progress/permutation_importance.csv`.
