@@ -21,7 +21,7 @@ The modeling set has **595** players (**476** train, **119** test) with an **80/
 | Random forest | `RandomizedSearchCV`, 24 draws | 0.893 | 0.728 | 0.138 |
 | HistGradientBoosting | `RandomizedSearchCV`, 30 draws | 0.900 | 0.734 | 0.124 |
 
-**R²** is about **0.15** on the test set. The features explain only part of the variance in the composite.
+On the test set, **R²** ≈ **0.15** means the model explains about **15%** of the variance in **`success_composite_v1`** (relative to always predicting the test-set mean).
 
 ---
 
