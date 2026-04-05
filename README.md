@@ -90,7 +90,7 @@ Stat486_NBA_Project/
    ```bash
    python -m src.models.evaluate_supervised
    ```  
-   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`progress/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary. The **markdown report** (`progress/03_supervised.md`) is not auto-updated—edit it if you need prose/tables to match a new run.
+   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`progress/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary.
 
 ---
 
