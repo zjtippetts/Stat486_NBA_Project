@@ -57,8 +57,6 @@ The full ranking is in `progress/permutation_importance.csv`. The figure is belo
 
 ## Reproduction
 
-Most people checking this milestone only need the supervised script. It expects `data/processed` and the career summary to already match the repo (see **`README.md`** for a full pipeline from raw data).
-
 ```bash
 python -m src.models.evaluate_supervised
 ```
