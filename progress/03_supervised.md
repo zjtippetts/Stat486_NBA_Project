@@ -62,7 +62,3 @@ Most people checking this milestone only need the supervised script. It expects 
 ```bash
 python -m src.models.evaluate_supervised
 ```
-
-Use `python -m src.data.rebuild_model_base` if you change how college rows merge into `model_base` and need to refresh `data/processed` without a new scrape. Use `python -m src.analysis.career_outcomes` if you change how the target is defined.
-
-This file is **not** auto-generated. After you rerun evaluation, update numbers here so they match the printed JSON or `notebooks/03_supervised_modeling.ipynb`.
