@@ -38,7 +38,11 @@ Stat486_NBA_Project/
 │   └── 04_unsupervised.md    # Deliverable 4: Additional ML method
 │
 ├── notebooks/                # EDA + supervised modeling (e.g. 03_supervised_modeling.ipynb)
-└── demo/                     # Demo artifact (.ipynb or Streamlit app)
+├── demo/                     # Deliverable 4 demo: PCA notebook
+├── outputs/                  # Generated tables (not milestone prose)
+│   ├── supervised/           # e.g. permutation importance CSV
+│   └── unsupervised/         # Deliverable 4 tables (PCA loadings, correlations)
+└── presentation/             # Final slides (PPTX) + optional generator script
 ```
 
 ---
@@ -85,12 +89,25 @@ Stat486_NBA_Project/
 
    Cleanup logic (deduped season appearances, dropped blank `Season` spacer rows in normalized stat tables, 429 backoff, etc.) lives in `src/data/` and runs automatically on `run_data_pull` or via the commands above.
 
-5. **EDA and modeling**  
+5. **EDA and supervised modeling**  
    Document workflow in `progress/02_eda.md` and `progress/03_supervised.md`. Supervised models use **college advanced** from each player's **last NCAA season** on `model_base` (see `src/data/run_data_pull.py`), plus **debut age** and **rookie position**. **Ridge, LassoCV, random forest, gradient boosting** (recruiting excluded), **BPM complete-case** filtering. Implementation: **`src/models/evaluate_supervised.py`** (tuning, test metrics, permutation importance); modeling table: **`src/models/training_data.py`**. Run either:  
    ```bash
    python -m src.models.evaluate_supervised
    ```  
-   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`progress/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary.
+   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`outputs/supervised/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary. The **markdown report** (`progress/03_supervised.md`) is not auto-updated—edit it if you need prose/tables to match a new run.
+
+6. **PCA (Deliverable 4 — additional ML method)**  
+   Wide numeric feature matrix (advanced + per-100 + totals + demographics; **no recruiting**, same as supervised philosophy); **same 595-row cohort and train/test split** as step 5; **impute, scale, and PCA fit on train only**. Writes CSVs under **`outputs/unsupervised/`** and figures **`progress/figures/pca_*.png`**. Run:
+   ```bash
+   python -m src.models.pca_analysis
+   ```
+   **Demo artifact for graders:** **`demo/04_pca_deliverable4.ipynb`** (calls the same `main()`). Narrative: **`progress/04_unsupervised.md`**.
+
+7. **Presentation slides (Deliverable 4 / 5)**  
+   Prebuilt deck: **`presentation/Stat486_NBA_Final.pptx`**. Regenerate after changing talking points:
+   ```bash
+   python presentation/generate_slides.py
+   ```
 
 ---
 
@@ -108,10 +125,20 @@ Stat486_NBA_Project/
 | 01 Proposal | ✓ |
 | 02 Data & EDA | ✓ |
 | 03 Supervised modeling | ✓ (see `03_supervised.md`; re-run script for fresh metrics) |
-| 04 Additional ML method | Pending |
+| 04 Additional ML method | ✓ (`progress/04_unsupervised.md`, `demo/04_pca_deliverable4.ipynb`, `presentation/Stat486_NBA_Final.pptx`) |
 
 ---
 
 ## Figures and Main Results
 
-(To be added as the project progresses.)
+| Topic | Location |
+| --- | --- |
+| EDA | `progress/figures/eda_*.png` |
+| Supervised permutation importance (plot) | `progress/figures/supervised_perm_importance.png` |
+| Supervised permutation importance (table) | `outputs/supervised/permutation_importance.csv` |
+| PCA loadings / PC vs outcome correlations | `outputs/unsupervised/pca_loadings.csv`, `pca_pc_success_correlation.csv` |
+| PCA scree / variance | `progress/figures/pca_scree.png`, `pca_cumulative_variance.png` |
+| PCA PC1 vs PC2 (train, colored by composite) | `progress/figures/pca_pc1_pc2_train_scatter.png` |
+| PCA PC1 loadings | `progress/figures/pca_pc1_loadings_bar.png` |
+
+Re-run **`python -m src.models.evaluate_supervised`** and **`python -m src.models.pca_analysis`** after any change to modeling inputs.

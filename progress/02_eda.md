@@ -128,7 +128,7 @@ The hardest part was **scraping**: rate limits, a few bad pages, and many player
 
 **Tier D only.** Models fit on `success_composite_v1` only learn from players who reached **two** qualifying seasons. A low prediction does **not** mean “will wash out” unless I add a separate model for that. Details are in `target_variable_spec.md`.
 
-**Other.** The composite is a teaching and analysis choice, not a claim about “true” player value. Some shooting breakdown columns are not filled in `model_base` in my current merge; I can use separate shooting CSVs if I need them. **Supervised v1** does not include recruiting features; PCA (Deliverable 4) may still use a wider pre-draft set.
+**Other.** The composite is a teaching and analysis choice, not a claim about “true” player value. Some shooting breakdown columns are not filled in `model_base` in my current merge; I can use separate shooting CSVs if I need them. **Supervised v1** does not include recruiting features; PCA (Deliverable 4) adds **per-100** and **totals** college blocks but also **omits recruiting**.
 
 ---
 

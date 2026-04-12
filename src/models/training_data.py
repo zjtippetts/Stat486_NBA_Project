@@ -135,21 +135,16 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def build_supervised_frame(
+def build_modeling_cohort_frame(
     *,
     model_base_path: Path | None = None,
     summary_path: Path | None = None,
     require_non_null_bpm: bool = True,
 ) -> pd.DataFrame:
     """
-    One row per eligible NBA player with features and target.
+    Same eligible rows as supervised modeling, with **all** columns from the merge plus demographics.
 
-    Filters:
-    - Deduped NBA seasons (2TM rule), then one row per ``nba_player_id``.
-    - Merge career summary; keep tier D, entry_cohort, college_player_id present,
-      ``success_composite_v1`` non-null.
-    - If ``require_non_null_bpm``, drop rows where ``cbb_advanced_BPM`` is missing
-      (Sports Reference sometimes omits BPM on a season row).
+    Use for PCA or other analyses that need a wider feature set than ``build_supervised_frame``.
     """
     root = _repo_root()
     mb_path = model_base_path or root / "data" / "processed" / "model_base_player_season.csv"
@@ -177,6 +172,30 @@ def build_supervised_frame(
         out = out.loc[out[BPM_COL].notna()].copy()
 
     out = attach_nba_demographics_for_eda(out, mb, copy=False)
+    return out.reset_index(drop=True)
+
+
+def build_supervised_frame(
+    *,
+    model_base_path: Path | None = None,
+    summary_path: Path | None = None,
+    require_non_null_bpm: bool = True,
+) -> pd.DataFrame:
+    """
+    One row per eligible NBA player with features and target.
+
+    Filters:
+    - Deduped NBA seasons (2TM rule), then one row per ``nba_player_id``.
+    - Merge career summary; keep tier D, entry_cohort, college_player_id present,
+      ``success_composite_v1`` non-null.
+    - If ``require_non_null_bpm``, drop rows where ``cbb_advanced_BPM`` is missing
+      (Sports Reference sometimes omits BPM on a season row).
+    """
+    out = build_modeling_cohort_frame(
+        model_base_path=model_base_path,
+        summary_path=summary_path,
+        require_non_null_bpm=require_non_null_bpm,
+    )
 
     missing_cbb = [c for c in CBB_ADVANCED_FEATURE_COLS if c not in out.columns]
     if missing_cbb:

@@ -94,7 +94,7 @@ I will pin down the exact formula during EDA (for example a weighted mix). I can
 **PCA (dimensionality reduction)**  
 I will run PCA on college and pre-draft features. Loadings show which original variables push each component. I will relate component scores to my success metric to see which directions in the data track NBA success. This pairs with supervised model tools like feature importance or SHAP. I might add t-SNE plots only if they help explain the story.
 
-**Note on supervised models (Deliverable 3):** My first regression models in `progress/03_supervised.md` use **college advanced stats only** (no recruiting), with rows dropped when college **BPM** is missing. PCA can still draw on a **broader** set of columns where that fits the question.
+**Note on supervised models (Deliverable 3):** My first regression models in `progress/03_supervised.md` use **college advanced stats only** (no recruiting), with rows dropped when college **BPM** is missing. PCA (Deliverable 4) adds **per-100** and **totals** college columns but also **omits recruiting**, matching that choice.
 
 ---
 

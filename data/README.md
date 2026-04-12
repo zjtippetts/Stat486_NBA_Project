@@ -172,4 +172,4 @@ Join keys: `nba_player_id` within NBA tables; `nba_college_map` links to `cbb_*`
 
 - Respect rate limits when scraping; reruns may take substantial time for full-player pulls.
 - Store raw data locally; do not re-scrape unnecessarily.
-- Document EDA choices in `progress/02_eda.md`. **Supervised modeling (Deliverable 3)** filters and features are in `progress/03_supervised.md` and `src/models/training_data.py` (**`nba_debut_age`**, **rookie NBA position dummies** from `Pos`, college **`cbb_advanced_*`**, **no recruiting**, **complete case on college BPM**; height/weight optional for future pulls only). Permutation-importance table: `progress/permutation_importance.csv`.
+- Document EDA choices in `progress/02_eda.md`. **Supervised modeling (Deliverable 3)** filters and features are in `progress/03_supervised.md` and `src/models/training_data.py` (**`nba_debut_age`**, **rookie NBA position dummies** from `Pos`, college **`cbb_advanced_*`**, **no recruiting**, **complete case on college BPM**; height/weight optional for future pulls only). Permutation-importance table: `outputs/supervised/permutation_importance.csv`.

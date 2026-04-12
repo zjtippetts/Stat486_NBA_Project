@@ -2,6 +2,9 @@
 Train ridge, lasso (L1 feature selection), random forest, and gradient boosting
 with CV; evaluate on held-out test.
 Run: python -m src.models.evaluate_supervised
+
+Writes permutation importances to ``outputs/supervised/permutation_importance.csv`` and
+the plot to ``progress/figures/supervised_perm_importance.png``.
 """
 
 from __future__ import annotations
@@ -35,6 +38,8 @@ def main() -> dict:
     root = _repo_root()
     fig_dir = root / "progress" / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = root / "outputs" / "supervised"
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     df = build_supervised_frame(require_non_null_bpm=True)
     feat_cols = supervised_feature_columns(df)
@@ -186,9 +191,6 @@ def main() -> dict:
     }
     out["best_test_r2_model"] = max(all_models, key=lambda k: all_models[k][1])
 
-    # Permutation importance: use best among ridge / RF / GB only. Lasso often uses
-    # few features; shuffling columns the fit ignored yields near-zero importance for
-    # most names, which is misleading for a global "what drives predictions?" plot.
     perm_candidates = {k: all_models[k] for k in ("ridge", "random_forest", "gradient_boosting")}
     best_name = max(perm_candidates, key=lambda k: perm_candidates[k][1])
     best_estimator = perm_candidates[best_name][0]
@@ -217,7 +219,7 @@ def main() -> dict:
         .sort_values("importance_mean", ascending=False)
         .reset_index(drop=True)
     )
-    imp_path = root / "progress" / "permutation_importance.csv"
+    imp_path = out_dir / "permutation_importance.csv"
     imp_tbl.to_csv(imp_path, index=False)
     out["permutation_importance_csv"] = str(imp_path.relative_to(root)).replace("\\", "/")
 

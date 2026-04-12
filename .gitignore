@@ -6,3 +6,5 @@ venv/
 .venv/
 .env
 _cell1.txt
+PRESENTATION_GUIDE.md
+presentation/generate_slides.py
