@@ -1,6 +1,6 @@
 # NBA Draft Player Success Prediction
 
-**STAT 486 Final Project — Winter/Spring 2026**
+**STAT 486 Final Project — Winter 2026**
 
 ---
 
