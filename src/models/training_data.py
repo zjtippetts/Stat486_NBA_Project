@@ -10,10 +10,10 @@ Complete-case on ``cbb_advanced_BPM`` (drop players missing college BPM on SR).
 
 Non-college signals (no full re-scrape required):
   - ``nba_debut_age``: first NBA season start year minus birth year (``birthday`` + summary).
-  - ``pos_is_SG`` … ``pos_is_C``, ``pos_is_UNK``: dummies from NBA ``Pos`` on the player's
-    **earliest** deduped season row (same 2TM dedupe rule as outcomes). Only **PG, SG, SF, PF, C**
-    (first token if hyphenated). **PG** is the reference level (all five dummies 0); **UNK** for
-    missing or non-matching labels.
+  - ``pos_is_SG`` … ``pos_is_C``: dummies from NBA ``Pos`` on the player's **earliest** deduped
+    season row (same 2TM dedupe rule as outcomes). Only **PG, SG, SF, PF, C** (first token if
+    hyphenated). **PG** is the reference (all four dummies 0). Missing or non-matching labels use
+    the same baseline as PG (no separate dummy; none in the modeling cohort with current data).
 
 College advanced only for rates (no ``cbb_totals_*`` / ``cbb_per100_*`` in this table).
 """
@@ -38,7 +38,6 @@ POS_DUMMY_COLS: Final[tuple[str, ...]] = (
     "pos_is_SF",
     "pos_is_PF",
     "pos_is_C",
-    "pos_is_UNK",
 )
 DEMOGRAPHIC_FEATURE_COLS: Final[list[str]] = ["nba_debut_age", *POS_DUMMY_COLS]
 
@@ -116,7 +115,6 @@ def attach_nba_demographics_for_eda(
     out["pos_is_SF"] = (grp == "SF").astype(float)
     out["pos_is_PF"] = (grp == "PF").astype(float)
     out["pos_is_C"] = (grp == "C").astype(float)
-    out["pos_is_UNK"] = (grp == "UNK").astype(float)
     return out.drop(columns=["_pos_group"], errors="ignore")
 
 

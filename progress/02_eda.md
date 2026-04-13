@@ -30,11 +30,11 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 ## 3) Summary statistics and relationships
 
-**Career summary file (`player_career_summary_v1.csv`).** **1,812** players. **Tier counts:** **B = 305**, **C = 237**, **D = 1,270**. (In my extract no one is tier A; everyone has at least one minute recorded as games played.) **1,128** players are in the entry cohort. **713** have a non-null `success_composite_v1` (tier D and cohort).
+**Career summary file (`player_career_summary_v1.csv`).** **1,812** players. **Tier counts:** **B = 303**, **C = 238**, **D = 1,271**. (In my extract no one is tier A; everyone has at least one minute recorded as games played.) **1,128** players are in the entry cohort. **713** have a non-null `success_composite_v1` (tier D and cohort).
 
-**Composite (713 players).** Mean is about **0** and standard deviation about **0.91** because of the z-score step. Min about **−1.81**, max about **2.94**.
+**Modeling slice (595 players—Figure 2).** Tier D, entry cohort, non-null composite, **`college_player_id`** present, and **`cbb_advanced_BPM`** non-null—the same population used for supervised and PCA modeling. Mean is about **0.02** and standard deviation about **0.93**. Min about **−1.52**, max about **2.88**. The histogram is **right-skewed** (long tail toward high success) even though the mean is centered near zero.
 
-**College-focused modeling slice (611 players):** tier D, cohort, college id, and non-null composite. College **PER** (last NCAA season on `model_base`): 602 non-null values, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null, mean **6.9**, SD **2.7**. (Re-run this notebook after changing `model_base` merge logic; counts shift slightly.) **Recruiting rank:** 360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
+**Modeling slice feature availability (same 595):** College **PER** (last NCAA season on `model_base`): non-null for all 595, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null (by definition of this slice), mean **6.9**, SD **2.7**. (Re-run this notebook after changing `model_base` merge logic; counts shift slightly.) **Recruiting rank:** ~360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
 
 **Correlations.** In `02_eda_college.ipynb` I correlated **`nba_debut_age`**, rookie **position dummies**, **college advanced** fields, and (for EDA only) **recruiting_rank** with `success_composite_v1`. **Figure 8** in section 4 shows the heatmap. After **opportunity-adjusting** the longevity leg of the composite (see `target_variable_spec.md` §5), college PER and the composite correlate about **0.24** on the supervised slice—re-run the notebook to refresh plots; useful signal, but not tight enough to predict one player perfectly.
 
@@ -56,13 +56,13 @@ The plots below are **included in this report** so a reader does not have to ope
 
 **Why it matters.** It shows how many players had a short NBA career compared with a long one, and which group is large enough to support a stable outcome. Only tier D players get `success_composite_v1`, so this motivates that choice.
 
-#### Figure 2 — Distribution of the success composite
+#### Figure 2 — Distribution of the success composite (modeling slice)
 
 ![Histogram of success composite v1](figures/eda_success_composite_hist.png)
 
-**What it shows.** The distribution of `success_composite_v1` for players who receive it (tier D and entry cohort).
+**What it shows.** The distribution of `success_composite_v1` for the **modeling slice**: tier **D**, entry cohort, non-null composite, **`college_player_id`** present, and **`cbb_advanced_BPM`** non-null (**n = 595**)—the same population used in supervised and PCA analyses. The distribution is **right-skewed**: most players cluster below the mean, with a smaller tail of very high-success careers.
 
-**Why it matters.** This is the **target** I want to predict from college-side data (and I explored recruiting in EDA). The shape tells me how spread out success is and whether the scale is roughly symmetric or skewed.
+**Why it matters.** This is the **target** I want to predict from college-side data (and I explored recruiting in EDA). Mean near **0** comes from the z-score construction; skew shows that **star outcomes are rarer** than “below-average” outcomes on this scale, which matters for interpreting model errors and spread.
 
 #### Figure 3 — Mean fantasy points per game vs career games
 

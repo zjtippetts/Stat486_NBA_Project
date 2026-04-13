@@ -6,7 +6,7 @@
 
 ## Method
 
-PCA is a natural fit here because the **80** college features are **heavily collinear**: many stats appear as advanced rates, per-100 rates, and raw totals of the same underlying box-score number. Rather than ask a regression to pick one of several near-identical columns, PCA first reveals which **directions of variation** actually exist in the data, then we can relate those directions to career success.
+PCA is a natural fit here because the **80** college features are **heavily collinear**: many stats appear as advanced rates, per-100 rates, and raw totals of the same underlying box-score number. Supervised models already mitigate collinearity (**Ridge** shrinks correlated coefficients; **Lasso** drops redundant terms; **trees** split on one feature at a time). PCA complements them by making which **directions of variation** exist in the wide matrix explicit, so we can interpret geometry and relate component scores to career success.
 
 The feature set is `cbb_advanced_*`, `cbb_per100_*`, `cbb_totals_*`, **`nba_debut_age`**, and rookie **position dummies** (no recruiting). Rows match supervised modeling (**595** players). Same **80/20** split (`random_state=42`); **median imputation** and **standardization** fit on **train only**, then PCA on the scaled train matrix. **scikit-learn** kept components until **90%** train variance (**13** PCs from **80** features). Run: `python -m src.models.pca_analysis`.
 
