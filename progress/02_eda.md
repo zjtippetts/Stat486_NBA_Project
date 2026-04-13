@@ -34,9 +34,9 @@ This is my Data and EDA write-up: what I built, what I measured, plots I made, a
 
 **Modeling slice (595 players—Figure 2).** Tier D, entry cohort, non-null composite, **`college_player_id`** present, and **`cbb_advanced_BPM`** non-null—the same population used for supervised and PCA modeling. Mean is about **0.02** and standard deviation about **0.93**. Min about **−1.52**, max about **2.88**. The histogram is **right-skewed** (long tail toward high success) even though the mean is centered near zero.
 
-**Modeling slice feature availability (same 595):** College **PER** (last NCAA season on `model_base`): non-null for all 595, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null (by definition of this slice), mean **6.9**, SD **2.7**. (Re-run this notebook after changing `model_base` merge logic; counts shift slightly.) **Recruiting rank:** ~360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
+**Modeling slice feature availability (same 595):** College **PER** (last NCAA season on `model_base`): non-null for all 595, mean **21.3**, SD **4.5**, median **20.8**. College **BPM:** 595 non-null (by definition of this slice), mean **6.9**, SD **2.7**. **Recruiting rank:** ~360 non-null, mean **33.1**, SD **28.1**, median **24.5** (smaller rank means more highly ranked recruit).
 
-**Correlations.** In `02_eda_college.ipynb` I correlated **`nba_debut_age`**, rookie **position dummies**, **college advanced** fields, and (for EDA only) **recruiting_rank** with `success_composite_v1`. **Figure 8** in section 4 shows the heatmap. After **opportunity-adjusting** the longevity leg of the composite (see `target_variable_spec.md` §5), college PER and the composite correlate about **0.24** on the supervised slice—re-run the notebook to refresh plots; useful signal, but not tight enough to predict one player perfectly.
+**Correlations.** In `02_eda_college.ipynb` I correlated **`nba_debut_age`**, rookie **position dummies**, **college advanced** fields, and (for EDA only) **recruiting_rank** with `success_composite_v1`. **Figure 8** in section 4 shows the heatmap. After **opportunity-adjusting** the longevity leg of the composite (see `target_variable_spec.md` §5), college PER and the composite correlate about **0.24** on the supervised slice—useful signal, but not tight enough to predict one player perfectly.
 
 **Takeaway.** The outcome spans a couple of standard deviations on the composite scale. College advanced stats help on average but leave a lot of noise. Recruiting rank is missing for many players; even when it is there, it only partly lines up with my NBA success score.
 
@@ -130,12 +130,4 @@ The hardest part was **scraping**: rate limits, a few bad pages, and many player
 
 **Other.** The composite is a teaching and analysis choice, not a claim about “true” player value. Some shooting breakdown columns are not filled in `model_base` in my current merge; I can use separate shooting CSVs if I need them. **Supervised v1** does not include recruiting features; PCA (Deliverable 4) adds **per-100** and **totals** college blocks but also **omits recruiting**.
 
----
-
-## Submission checklist (Deliverable 2)
-
-- This file: overview, variables, preprocessing, numbers, correlations, **figures embedded in section 4** with relevance text, reflection.  
-- Notebooks: `notebooks/02_eda_outcomes.ipynb`, `notebooks/02_eda_college.ipynb`.  
-- Figures in `progress/figures/` (re-run notebooks if I change code).  
-- Canvas: repo link and note *Deliverable 2 complete* when I submit.
 

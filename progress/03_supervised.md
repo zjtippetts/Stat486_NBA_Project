@@ -61,10 +61,8 @@ Permutation importance (Ridge, test set)
 
 ## Reproduction
 
-Most people checking this milestone only need the supervised script. It expects `data/processed` and the career summary to already match the repo (see `**README.md`** for a full pipeline from raw data).
-
 ```bash
 python -m src.models.evaluate_supervised
 ```
 
-Use `python -m src.data.rebuild_model_base` if you change how college rows merge into `model_base` and need to refresh `data/processed` without a new scrape. Use `python -m src.analysis.career_outcomes` if you change how the target is defined.
+See `README.md` for the full pipeline from raw data.
