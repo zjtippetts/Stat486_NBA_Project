@@ -101,10 +101,10 @@ Stat486_NBA_Project/
    ```bash
    python -m src.models.pca_analysis
    ```
-   **Demo artifact for graders:** **`demo/04_pca_deliverable4.ipynb`** (calls the same `main()`). Narrative: **`progress/04_unsupervised.md`**.
+   **Demo artifact:** **`demo/04_pca_deliverable4.ipynb`** (calls the same `main()`). Narrative: **`progress/04_unsupervised.md`**.
 
 7. **Presentation slides (Deliverable 4 / 5)**  
-   Prebuilt deck: **`presentation/Stat486_NBA_Final.pptx`**.
+   **`presentation/Stat486_NBA_Final.pptx`**.
 
 ---
 
