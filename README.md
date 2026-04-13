@@ -94,7 +94,7 @@ Stat486_NBA_Project/
    ```bash
    python -m src.models.evaluate_supervised
    ```  
-   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`outputs/supervised/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary. The **markdown report** (`progress/03_supervised.md`) is not auto-updated—edit it if you need prose/tables to match a new run.
+   …or **`notebooks/03_supervised_modeling.ipynb`** (same `main()`; demo-friendly). Writes **`outputs/supervised/permutation_importance.csv`**, **`progress/figures/supervised_perm_importance.png`**, and prints a JSON summary.
 
 6. **PCA (Deliverable 4 — additional ML method)**  
    Wide numeric feature matrix (advanced + per-100 + totals + demographics; **no recruiting**, same as supervised philosophy); **same 595-row cohort and train/test split** as step 5; **impute, scale, and PCA fit on train only**. Writes CSVs under **`outputs/unsupervised/`** and figures **`progress/figures/pca_*.png`**. Run:
