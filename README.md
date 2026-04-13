@@ -104,10 +104,7 @@ Stat486_NBA_Project/
    **Demo artifact for graders:** **`demo/04_pca_deliverable4.ipynb`** (calls the same `main()`). Narrative: **`progress/04_unsupervised.md`**.
 
 7. **Presentation slides (Deliverable 4 / 5)**  
-   Prebuilt deck: **`presentation/Stat486_NBA_Final.pptx`**. Regenerate after changing talking points:
-   ```bash
-   python presentation/generate_slides.py
-   ```
+   Prebuilt deck: **`presentation/Stat486_NBA_Final.pptx`**.
 
 ---
 
